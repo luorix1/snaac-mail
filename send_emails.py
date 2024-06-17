@@ -1,4 +1,5 @@
 import dotenv
+import sys
 import json
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
@@ -31,6 +32,16 @@ def send_emails(sg, recipients):
             print(str(e))
 
 if __name__ == '__main__':
-    recipients = ['info@snaac.co.kr']
+    # Test recipients
+    test_recipients = ['info@snaac.co.kr']
 
-    send_emails(sg, recipients)
+    # Load recipients
+    with open('recipients.json', 'r') as f:
+        recipients = list(json.load(f).values())
+
+    if '--settings=test' in sys.argv:
+        send_emails(sg, test_recipients)
+    elif '--settings=prod' in sys.argv:
+        send_emails(sg, recipients)
+    else:
+        raise ValueError('Invalid settings argument. Use --settings=test or --settings=prod')
